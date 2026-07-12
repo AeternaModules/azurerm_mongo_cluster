@@ -1,3 +1,7 @@
+output "mongo_clusters_id" {
+  description = "Map of id values across all mongo_clusters, keyed the same as var.mongo_clusters"
+  value       = { for k, v in azurerm_mongo_cluster.mongo_clusters : k => v.id }
+}
 output "mongo_clusters_administrator_password" {
   description = "Map of administrator_password values across all mongo_clusters, keyed the same as var.mongo_clusters"
   value       = { for k, v in azurerm_mongo_cluster.mongo_clusters : k => v.administrator_password }
