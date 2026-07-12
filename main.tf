@@ -1,3 +1,8 @@
+data "azurerm_key_vault_secret" "administrator_password" {
+  for_each     = { for k, v in var.mongo_clusters : k => v if v.administrator_password_key_vault_id != null && v.administrator_password_key_vault_secret_name != null }
+  name         = each.value.administrator_password_key_vault_secret_name
+  key_vault_id = each.value.administrator_password_key_vault_id
+}
 resource "azurerm_mongo_cluster" "mongo_clusters" {
   for_each = var.mongo_clusters
 
@@ -17,7 +22,7 @@ resource "azurerm_mongo_cluster" "mongo_clusters" {
   compute_tier           = each.value.compute_tier
   authentication_methods = each.value.authentication_methods
   administrator_username = each.value.administrator_username
-  administrator_password = each.value.administrator_password
+  administrator_password = each.value.administrator_password != null ? each.value.administrator_password : try(data.azurerm_key_vault_secret.administrator_password[each.key].value, null)
   tags                   = each.value.tags
   version                = each.value.version
 
